@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "synthi-sam-core",
+    "synthi-sam-stage",
+]
