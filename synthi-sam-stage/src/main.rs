@@ -1,4 +1,4 @@
-use synthi_sam_core::{audio::{AudioPort, ProcessingInfo}, device::{NamedMidiPort, DeviceInfo, NamedAudioPort}};
+use cpal::Device;
 
 struct DemoDevice {
     info: DeviceInfo,
@@ -42,6 +42,7 @@ impl Device for DemoDevice {
 
     }
 
+    
     fn audio_input_port(&mut self, index: usize) -> Result<&mut NamedAudioPort, &'static str> {
         return None;
     }
