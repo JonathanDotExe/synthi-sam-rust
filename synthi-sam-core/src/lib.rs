@@ -1,4 +1,4 @@
-mod midi;
-mod util;
-mod audio;
-mod device;
+pub mod midi;
+pub mod util;
+pub mod audio;
+pub mod device;
