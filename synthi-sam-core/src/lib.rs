@@ -1,6 +1,4 @@
 mod midi;
 mod util;
-
-fn main() {
-    println!("Hello, world!");
-}
+mod audio;
+mod device;
