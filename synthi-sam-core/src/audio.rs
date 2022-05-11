@@ -1,6 +1,6 @@
 type AudioSample = f64;
 
-struct AudioPort {
+pub struct AudioPort {
     channels: Box<[AudioSample]>,
 }
 
@@ -57,7 +57,7 @@ impl AudioPort {
     }
 
     #[inline(always)]
-    pub fn channels(&mut self) -> &[AudioSample] {
+    pub fn channels(&self) -> &[AudioSample] {
         return &self.channels;
     }
 
