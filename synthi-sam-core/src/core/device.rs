@@ -1,4 +1,4 @@
-use super::{audio::{AudioPort, ProcessingInfo, SampleInfo}, midi::{MidiMessage, MidiPort}};
+use super::{audio::{AudioPort, ProcessingInfo, SampleInfo}, midi::{MidiPort}};
 
 pub struct NamedAudioPort {
     name: &'static str,
