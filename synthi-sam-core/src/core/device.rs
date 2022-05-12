@@ -1,5 +1,4 @@
-use crate::{audio::{AudioPort, ProcessingInfo, SampleInfo}, Midi::MidiMessage};
-
+use super::{audio::{AudioPort, ProcessingInfo, SampleInfo}, midi::MidiMessage};
 
 pub struct NamedAudioPort {
     name: &'static str,

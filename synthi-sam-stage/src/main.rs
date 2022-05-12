@@ -1,4 +1,4 @@
-use cpal::Device;
+use synthi_sam_core::core::{device::{Device, DeviceInfo, NamedAudioPort, NamedMidiPort}, audio::{ProcessingInfo, SampleInfo}, midi::MidiMessage};
 
 struct DemoDevice {
     info: DeviceInfo,
@@ -7,7 +7,7 @@ struct DemoDevice {
     processing_info: ProcessingInfo,
 }
 
-impl Device {
+impl DemoDevice {
 
     fn new() -> DemoDevice {
         return DemoDevice {
