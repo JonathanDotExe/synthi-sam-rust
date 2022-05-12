@@ -38,30 +38,26 @@ impl Device for DemoDevice {
 
     }
 
-    fn recieve_midi(&mut self, msg: MidiMessage, info: SampleInfo, port: usize) {
-
-    }
-
     
-    fn audio_input_port(&mut self, index: usize) -> Result<&mut NamedAudioPort, &'static str> {
+    fn audio_input_port(&mut self, _: usize) -> Option<&mut NamedAudioPort> {
         return None;
     }
 
-    fn audio_output_port(&mut self, index: usize) -> Result<&mut NamedAudioPort, &'static str> {
+    fn audio_output_port(&mut self, index: usize) -> Option<&mut NamedAudioPort> {
         return match index {
-            0 => Some(&self.output),
+            0 => Some(&mut self.output),
             _ => None,
         }
     }
 
-    fn midi_input_port(&mut self, index: usize) -> Result<&mut NamedMidiPort, &'static str> {
+    fn midi_input_port(&mut self, index: usize) -> Option<&mut NamedMidiPort> {
         return match index {
-            0 => Some(&self.midiin),
+            0 => Some(&mut self.midiin),
             _ => None,
         }
     }
 
-    fn midi_output_port(&mut self, index: usize) -> Result<&mut NamedMidiPort, &'static str> {
+    fn midi_output_port(&mut self, _: usize) -> Option<&mut NamedMidiPort> {
         return None
     }
 

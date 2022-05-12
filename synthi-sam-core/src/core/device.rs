@@ -1,4 +1,4 @@
-use super::{audio::{AudioPort, ProcessingInfo, SampleInfo}, midi::MidiMessage};
+use super::{audio::{AudioPort, ProcessingInfo, SampleInfo}, midi::{MidiMessage, MidiPort}};
 
 pub struct NamedAudioPort {
     name: &'static str,
@@ -31,6 +31,7 @@ impl NamedAudioPort {
 pub struct NamedMidiPort {
     name: &'static str,
     identifier: &'static str,
+    pub port: MidiPort,
 }
 
 impl NamedMidiPort {
@@ -39,6 +40,7 @@ impl NamedMidiPort {
         return NamedMidiPort {
             name: name,
             identifier: identifier,
+            port: MidiPort::new(),
         };
     }
 
@@ -67,15 +69,13 @@ pub trait Device {
 
     fn process(&mut self, info: SampleInfo);
 
-    fn recieve_midi(&mut self, msg: MidiMessage, info: SampleInfo, port: usize);
 
+    fn audio_input_port(&mut self, index: usize) -> Option<&mut NamedAudioPort>;
 
-    fn audio_input_port(&mut self, index: usize) -> Result<&mut NamedAudioPort, &'static str>;
+    fn audio_output_port(&mut self, index: usize) -> Option<&mut NamedAudioPort>;
 
-    fn audio_output_port(&mut self, index: usize) -> Result<&mut NamedAudioPort, &'static str>;
+    fn midi_input_port(&mut self, index: usize) -> Option<&mut NamedMidiPort>;
 
-    fn midi_input_port(&mut self, index: usize) -> Result<&mut NamedMidiPort, &'static str>;
-
-    fn midi_output_port(&mut self, index: usize) -> Result<&mut NamedMidiPort, &'static str>;
+    fn midi_output_port(&mut self, index: usize) -> Option<&mut NamedMidiPort>;
 
 }

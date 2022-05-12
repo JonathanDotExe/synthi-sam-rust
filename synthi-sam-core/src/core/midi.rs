@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use crate::util::get_default;
 
 #[derive(PartialEq, Debug)]
@@ -39,6 +40,7 @@ pub struct SysExEvent {
     pub data: Vec<u8>,
 }
 
+/// Represents a type of MIDI message with it's respective properties
 #[derive(PartialEq, Debug)]
 pub enum MidiMessageContent {
     NoteOff(NoteEvent),
@@ -51,14 +53,17 @@ pub enum MidiMessageContent {
     SysEx(SysExEvent)
 }
 
+/// Represents a MIDI message with a type and content as well as the channel it is sent in
 #[derive(Debug)]
 pub struct MidiMessage {
     pub channel: u8,
     pub message: MidiMessageContent,
 }
 
+
 impl MidiMessage {
 
+    /// Creates a new MIDI message from the raw byte data
     pub fn new(data: &[u8]) -> Result<MidiMessage, &'static str> {
         let message_type: MidiMessageContent;
         let channel: u8;
@@ -69,7 +74,7 @@ impl MidiMessage {
                 0x80 => message_type = MidiMessageContent::NoteOff(NoteEvent{ note: get_default(&data, 1, 0), velocity: (get_default(&data, 2, 0) as f64)/127.0} ),
                 0x90 => {
                     let vel = (get_default(&data, 2, 0) as f64)/127.0;
-                    if (vel > 0.0) {
+                    if vel > 0.0 {
                         message_type =  MidiMessageContent::NoteOn(NoteEvent{ note: get_default(&data, 1, 0), velocity: vel} );
                     }
                     else {
@@ -88,7 +93,7 @@ impl MidiMessage {
                 0xF0 => message_type = MidiMessageContent::SysEx(SysExEvent{data: data.to_vec()}),
                 _ =>  return Err("Invalid message type!"),
             }
-            channel = (data[0] & 0x0F);
+            channel = data[0] & 0x0F;
         }
         else {
             return Err("Empty message!")
@@ -101,3 +106,45 @@ impl MidiMessage {
     }
 
 }
+
+
+pub struct MidiPort {
+    queue: VecDeque<MidiMessage>,
+}
+
+/// A connection point for sending midi from one component to another saving current messages in a queue.
+impl MidiPort {
+
+    pub fn new() -> MidiPort {
+        return MidiPort {
+            queue: VecDeque::with_capacity(32),
+        }
+    }
+
+    #[inline(always)]
+    pub fn queue(&mut self, msg: MidiMessage) {
+        self.queue.push_front(msg);
+    }
+
+    #[inline(always)]
+    pub fn pop(&mut self) -> Option<MidiMessage> {
+        return self.queue.pop_back();
+    }
+
+    /// Clears all queued messages
+    #[inline(always)]
+    pub fn reset(&mut self) {
+        self.queue.clear();
+    }
+
+}
+
+impl Iterator for MidiPort {
+    type Item = MidiMessage;
+
+    #[inline(always)]
+    fn next(&mut self) -> Option<Self::Item> {
+        return self.pop();
+    }
+}
+
