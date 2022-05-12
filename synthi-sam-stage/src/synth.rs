@@ -1,4 +1,4 @@
-use synthi_sam_core::{core::{device::{Device, DeviceInfo, NamedAudioPort, NamedMidiPort}, audio::{ProcessingInfo, SampleInfo}, midi::MidiMessage}, dsp::{oscillator::{WaveForm, Oscillator, OscilatorConfig}, note_to_freq_transpose, note_to_freq}, util::voice::{VoiceManager, self}};
+use synthi_sam_core::{core::{device::{Device, DeviceInfo, NamedAudioPort, NamedMidiPort}, audio::{ProcessingInfo, SampleInfo}, midi::{MidiMessage, MidiMessageContent}}, dsp::{oscillator::{WaveForm, Oscillator, OscilatorConfig}, note_to_freq_transpose, note_to_freq}, util::voice::{VoiceManager, self}};
 
 
 #[derive(Default)]
@@ -38,36 +38,6 @@ impl voice::VoiceProcessor<SynthVoice> for SynthProcessor {
 
 }
 
-impl AudioMidiProcessor for SynthEngine {
-
-    fn setup(&mut self, info: ProcessingInfo) {
-        self.proc.sample_rate = info.sample_rate;
-        self.proc.time_step = info.time_step;
-        let i = SampleInfo {
-            sample_count: 0,
-            time: 0.0,
-            jitter: false,
-        };
-        self.voice_mgr.reset(&mut self.proc, i);
-        //self.voice_mgr.press_note(&mut self.proc, 60, 127, i);
-    }
-
-    fn process(&mut self, info: SampleInfo) -> (f64, f64) {
-        let sample = self.voice_mgr.process_voices(&mut self.proc, info);
-        return (sample, sample);
-    }
-
-    fn recieve_midi(&mut self, msg: MidiMessage, info: SampleInfo) {
-        //Note on/off for voice manager
-        match msg.message_type {
-            MidiMessageType::NoteOn => self.voice_mgr.press_note(&mut self.proc, msg.note(), msg.velocity(), info),
-            MidiMessageType::NoteOff => self.voice_mgr.release_note(&mut self.proc, msg.note(), info),
-            _ => {},
-        }
-    }
-
-}
-
 struct DemoDevice {
     info: DeviceInfo,
     output: NamedAudioPort,
@@ -85,7 +55,7 @@ impl DemoDevice {
                 name: "Demo Synth",
                 type_identifier: "synthi_sam_demo_synth"
             }, 
-            output: NamedAudioPort::new("Stereo Out", "stereo_out", 2), 
+            output: NamedAudioPort::new("Mono Out", "mono_out", 1), 
             midiin: NamedMidiPort::new("MIDI In", "midi_in"),
 
             voice_mgr: VoiceManager::new(30),
@@ -126,9 +96,19 @@ impl Device for DemoDevice {
     }
 
     fn process(&mut self, info: SampleInfo) {
+        //Recieve MIDI
+        while let Some(msg) = self.midiin.port.pop() {
+            //Note on/off for voice manager
+            match msg.message {
+                MidiMessageContent::NoteOn(note) => self.voice_mgr.press_note(&mut self.proc, note.note, note.velocity, info),
+                MidiMessageContent::NoteOff(note) => self.voice_mgr.release_note(&mut self.proc, note.note, info),
+                _ => {},
+            }
+        }
+        //Process voice mgr
         let sample = self.voice_mgr.process_voices(&mut self.proc, info);
-
-        
+        //Output
+        self.output.port.take_input_mono(sample);
     }
     
     fn audio_input_port(&mut self, _: usize) -> Option<&mut NamedAudioPort> {

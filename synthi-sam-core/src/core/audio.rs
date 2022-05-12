@@ -1,4 +1,4 @@
-type AudioSample = f64;
+pub type AudioSample = f64;
 
 #[derive(Copy, Clone)]
 pub enum ProcessingMode {
@@ -76,6 +76,12 @@ impl AudioPort {
     #[inline(always)]
     pub fn take_input_from_port(&mut self, port: &AudioPort) {
         self.take_input(&port.channels);
+    }
+
+    /// Takes input from a mono sample
+    #[inline(always)]
+    pub fn take_input_mono(&mut self, sample: AudioSample) {
+        self.channels.fill(sample);
     }
 
     /// Returns the current sample in all channels

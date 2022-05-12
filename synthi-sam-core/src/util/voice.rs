@@ -1,4 +1,4 @@
-use crate::core::audio::SampleInfo;
+use crate::core::audio::{SampleInfo, AudioSample};
 
 #[derive(PartialEq)]
 pub enum VoiceState {
@@ -16,8 +16,8 @@ impl Default for VoiceState {
 #[derive(Default)]
 pub struct Voice<T> where T: Default{
     pub state: VoiceState,
-    pub note: u32,
-    pub velocity: u32,
+    pub note: u8,
+    pub velocity: f64,
     pub press_time: f64,
     pub release_time: f64,
     pub data: T,
@@ -111,7 +111,7 @@ impl<T> VoiceManager<T> where T: Default {
 		return longest_index;
     }
 
-    pub fn press_note<E: VoiceProcessor<T>>(&mut self, proc: &mut E, note: u32, velocity: u32, info: SampleInfo) {
+    pub fn press_note<E: VoiceProcessor<T>>(&mut self, proc: &mut E, note: u8, velocity: f64, info: SampleInfo) {
         let index = self.find_next_slot();
         self.voices[index].note = note;
         self.voices[index].velocity = velocity;
@@ -122,7 +122,7 @@ impl<T> VoiceManager<T> where T: Default {
         proc.voice_on(&mut self.voices[index], info);
     }
 
-    pub fn release_note<E: VoiceProcessor<T>>(&mut self, proc: &mut E, note: u32, info: SampleInfo) {
+    pub fn release_note<E: VoiceProcessor<T>>(&mut self, proc: &mut E, note: u8, info: SampleInfo) {
         for mut voice in self.voices.iter_mut() {
             if voice.note == note {     //Check if note is equal
                 voice.state = VoiceState::Released;
@@ -132,7 +132,7 @@ impl<T> VoiceManager<T> where T: Default {
         }
     }
   
-    pub fn process_voices<E: VoiceProcessor<T>>(&mut self, proc: &mut E, info: SampleInfo) -> f64 {
+    pub fn process_voices<E: VoiceProcessor<T>>(&mut self, proc: &mut E, info: SampleInfo) -> AudioSample {
         let mut sample = 0.0;
         for mut voice in self.voices.iter_mut() {
             if voice.state != VoiceState::Incative {
