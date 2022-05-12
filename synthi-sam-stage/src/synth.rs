@@ -1,4 +1,4 @@
-use synthi_sam_core::{core::{device::{Device, DeviceInfo, NamedAudioPort, NamedMidiPort}, audio::{ProcessingInfo, SampleInfo}, midi::{MidiMessage, MidiMessageContent}}, dsp::{oscillator::{WaveForm, Oscillator, OscilatorConfig}, note_to_freq_transpose, note_to_freq}, util::voice::{VoiceManager, self}};
+use synthi_sam_core::{core::{device::{Device, DeviceInfo, NamedAudioPort, NamedMidiPort}, audio::{ProcessingInfo, SampleInfo}, midi::{MidiMessageContent}}, dsp::{oscillator::{WaveForm, Oscillator, OscilatorConfig}, note_to_freq_transpose, note_to_freq}, util::voice::{VoiceManager, self}};
 
 
 #[derive(Default)]
@@ -38,7 +38,7 @@ impl voice::VoiceProcessor<SynthVoice> for SynthProcessor {
 
 }
 
-struct DemoDevice {
+pub struct DemoDevice {
     info: DeviceInfo,
     output: NamedAudioPort,
     midiin: NamedMidiPort,
@@ -49,7 +49,7 @@ struct DemoDevice {
 
 impl DemoDevice {
 
-    fn new() -> DemoDevice {
+    pub fn new() -> DemoDevice {
         return DemoDevice {
             info: DeviceInfo {
                 name: "Demo Synth",

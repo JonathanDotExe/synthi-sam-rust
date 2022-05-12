@@ -138,13 +138,3 @@ impl MidiPort {
     }
 
 }
-
-impl Iterator for MidiPort {
-    type Item = MidiMessage;
-
-    #[inline(always)]
-    fn next(&mut self) -> Option<Self::Item> {
-        return self.pop();
-    }
-}
-
